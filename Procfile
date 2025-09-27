@@ -1,1 +1,1 @@
-web: gunicorn "app:app" --chdir "manage student"
+web: gunicorn manage_student.app:app
