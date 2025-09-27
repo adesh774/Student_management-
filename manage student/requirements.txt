@@ -1,5 +1,6 @@
-Flask
-pandas
-openpyxl
-reportlab
-Pillow
+Flask==3.0.3
+pandas==2.2.2
+openpyxl==3.1.5
+reportlab==4.2.2
+Pillow==10.4.0
+gunicorn==23.0.0
