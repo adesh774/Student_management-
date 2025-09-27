@@ -1,1 +1,1 @@
-web: gunicorn "manage student.app:app"
+web: gunicorn manage_student.app:app
