@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="card">
+  <div class="title-row">
+    <h2>Admin — Single Uploads</h2>
+    <div>
+      <a class="btn subtle" href="{{ url_for('admin_account') }}">Account</a>
+      <a class="btn subtle" href="{{ url_for('admin_logout') }}">Logout</a>
+    </div>
+  </div>
+
+  <div class="grid three">
+    <!-- ========== STUDENTS ========== -->
+    <div class="card">
+      <h3>Upload Students</h3>
+      <form action="{{ url_for('upload_students') }}" method="post" enctype="multipart/form-data" class="col">
+        <input type="file" name="students_file" accept=".xlsx,.csv" required>
+        <button type="submit">Upload Students</button>
+      </form>
+      <p class="muted" style="margin-top:8px">
+        <strong>Case-sensitive headers.</strong> Required exactly:
+        <code>Roll_number</code> and <code>Name of student</code>.
+        Optional (if present, must match case): father’s name, phones, address, email, session.
+      </p>
+
+      <details style="margin-top:8px">
+        <summary>Accepted Header Sets + Templates</summary>
+
+        <div class="scroll-x" style="margin-top:8px">
+          <h4 style="margin:8px 0 4px">Set A (canonical)</h4>
+          <table>
+            <thead><tr>{% for c in student_cols %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+            <tbody><tr>{% for c in student_cols %}<td>{{ c }}</td>{% endfor %}</tr></tbody>
+          </table>
+
+          <h4 style="margin:16px 0 4px">Set B (alternate)</h4>
+          <table>
+            <thead><tr>{% for c in student_cols_alt %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+            <tbody><tr>{% for c in student_cols_alt %}<td>{{ c }}</td>{% endfor %}</tr></tbody>
+          </table>
+
+          <p class="muted" style="margin-top:8px">
+            Also accepted exactly: <code>STUDENT Conact</code> (common typo) for the student phone column.
+          </p>
+        </div>
+
+        <div class="row" style="margin-top:8px">
+          <a class="btn subtle" href="{{ url_for('download_template', kind='Students_template.xlsx') }}">Download .xlsx</a>
+          <a class="btn subtle" href="{{ url_for('download_template', kind='Students_template.csv') }}">Download .csv</a>
+        </div>
+      </details>
+    </div>
+
+    <!-- ========== ATTENDANCE ========== -->
+    <div class="card">
+      <h3>Upload Attendance</h3>
+      <form action="{{ url_for('upload_attendance') }}" method="post" enctype="multipart/form-data" class="col">
+        <input type="file" name="attendance_file" accept=".xlsx,.csv" required>
+        <button type="submit">Upload Attendance</button>
+      </form>
+      <p class="muted">
+        Accepts <strong>Wide</strong> (columns like <code>Subject - Attended</code> and <code>Subject - Total</code>)
+        or <strong>Long</strong> (<code>roll_no</code>, <code>subject</code>, <code>attended</code>, <code>total</code>).
+        Subject names are detected dynamically and are <strong>case-sensitive</strong>.
+      </p>
+      <details style="margin-top:8px">
+        <summary>Excel/CSV Template (Wide or Long)</summary>
+        <div class="row" style="margin-top:8px">
+          <a class="btn subtle" href="{{ url_for('download_template', kind='Attendance_Wide_Template.xlsx') }}">Download Wide .xlsx</a>
+          <a class="btn subtle" href="{{ url_for('download_template', kind='Attendance_template.csv') }}">Download Long .csv</a>
+        </div>
+      </details>
+    </div>
+
+    <!-- ========== MARKS ========== -->
+    <div class="card">
+      <h3>Upload Marks</h3>
+      <form action="{{ url_for('upload_marks') }}" method="post" enctype="multipart/form-data" class="col">
+        <input type="file" name="marks_file" accept=".xlsx,.csv" required>
+        <button type="submit">Upload Marks</button>
+      </form>
+      <p class="muted">
+        Accepts <strong>Wide</strong> (one numeric column per subject like a result sheet)
+        or <strong>Long</strong> (<code>roll_no</code>, <code>subject</code>, <code>marks_obtained</code>, [<code>max_marks</code>], [<code>exam</code>]).
+        Subject names are <strong>case-sensitive</strong>.
+      </p>
+      <details style="margin-top:8px">
+        <summary>Excel/CSV Template (Wide or Long)</summary>
+        <div class="row" style="margin-top:8px">
+          <a class="btn subtle" href="{{ url_for('download_template', kind='Marks_Wide_Template.xlsx') }}">Download Wide .xlsx</a>
+          <a class="btn subtle" href="{{ url_for('download_template', kind='Marks_template.csv') }}">Download Long .csv</a>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ========== STUDENT TOOLS ========== -->
+<section class="card">
+  <h3>Student Tools</h3>
+  <div class="grid">
+    <form action="{{ url_for('admin_delete_one_student') }}" method="post" class="col" style="max-width:520px">
+      <label class="muted" for="roll_no">Delete one student by roll number</label>
+      <div class="row" style="align-items:center">
+        <input id="roll_no" name="roll_no" placeholder="Enter roll number" required>
+        <button type="submit" class="danger">Delete Student</button>
+      </div>
+    </form>
+
+    <form action="{{ url_for('admin_clear_students') }}" method="post" class="col" style="max-width:520px"
+          onsubmit="return confirm('This will delete ALL students and their related data. Continue?')">
+      <label class="muted">Danger zone</label>
+      <button type="submit" class="danger">Delete ALL Students</button>
+    </form>
+  </div>
+</section>
+
+<!-- ========== STATS ========== -->
+<section class="card">
+  <h3>Database Stats</h3>
+  <div class="grid">
+    <div class="stat">Students<br><strong>{{ stats.students }}</strong></div>
+    <div class="stat">Attendance Rows<br><strong>{{ stats.attendance }}</strong></div>
+    <div class="stat">Marks Rows<br><strong>{{ stats.marks }}</strong></div>
+  </div>
+</section>
+
+<!-- ========== RECENT UPLOADS ========== -->
+<section class="card">
+  <h3>Recent Uploads</h3>
+  {% if uploads %}
+  <div class="scroll-x">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th><th>Type</th><th>File</th><th>Rows</th><th>Uploaded By</th><th>When</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in uploads %}
+        <tr>
+          <td>{{ u['id'] }}</td>
+          <td>{{ u['upload_type'] }}</td>
+          <td title="{{ u['filename'] }}">
+            <a href="{{ url_for('admin_download_upload', upload_id=u['id']) }}">{{ u['filename'] }}</a>
+          </td>
+          <td>{{ u['row_count'] }}</td>
+          <td>{{ u['uploader_username'] }}</td>
+          <td>{{ u['created_at'] }}</td>
+          <td>
+            <form method="post"
+                  action="{{ url_for('delete_upload_route', upload_id=u['id']) }}"
+                  onsubmit="return confirm('Delete upload #{{u['id']}} (file + data rollback)?')">
+              <button class="danger" type="submit">Delete &amp; Rollback</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="muted">No uploads yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

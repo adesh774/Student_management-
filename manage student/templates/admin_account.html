@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="card narrow">
+  <h2>Admin Account</h2>
+  <p class="muted">Change your login username and/or password.</p>
+  <form method="post" class="col">
+    <label>Current Password</label>
+    <input type="password" name="current_password" placeholder="Current password" required>
+
+    <label>New Username <span class="muted">(optional)</span></label>
+    <input name="new_username" placeholder="Leave blank to keep '{{ username }}'">
+
+    <label>New Password <span class="muted">(optional)</span></label>
+    <input type="password" name="new_password" placeholder="Leave blank to keep current password">
+
+    <button type="submit">Save Changes</button>
+  </form>
+
+  <div style="margin-top:10px">
+    <a class="btn subtle" href="{{ url_for('admin_imports') }}">← Back to Admin</a>
+    <a class="btn subtle" href="{{ url_for('admin_logout') }}" style="margin-left:8px">Logout</a>
+  </div>
+</section>
+{% endblock %}

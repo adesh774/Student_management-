@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MVN UNIVERSITY STUDENTS PORTAL</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=7">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='logo.jpg') }}" alt="MVN Loo" class="logo" />
+      <div class="brand-text">
+        <h1>MVN UNIVERSITY</h1>
+        <div class="subtitle">School of Engineering  &amp; Technology </div>
+      </div>
+    </div>
+    <nav>
+      <a href="{{ url_for('home') }}">Home</a>
+      <!-- Admin link hidden; use /admin -->
+    </nav>
+  </header>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash" aria-live="polite" aria-atomic="true">
+        {% for cat, msg in messages %}
+          <div class="toast {{ cat }}">{{ msg }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="footer">© MVN University — Department of CSE (Damini , Adesh)</footer>
+
+  <!-- Auto-dismiss flash toasts quickly; adjust HIDE_AFTER as needed -->
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const box = document.querySelector('.flash');
+      if (!box) return;
+      const HIDE_AFTER = 1500; // milliseconds
+      setTimeout(() => {
+        box.querySelectorAll('.toast').forEach(el => {
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(-6px)';
+        });
+        setTimeout(() => box.remove(), 300);
+      }, HIDE_AFTER);
+    });
+  </script>
+</body>
+</html>
